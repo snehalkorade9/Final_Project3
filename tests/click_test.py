@@ -7,9 +7,6 @@ from app import create_database
 
 runner = CliRunner()
 
-
-
-
 def test_create_database():
     response = runner.invoke(create_database)
     assert response.exit_code == 0
@@ -18,3 +15,17 @@ def test_create_database():
     dbdir = os.path.join(root, '../database')
     # make a directory if it doesn't exist
     assert os.path.exists(dbdir) == True
+
+
+def test_log_folder_creation():
+    """check if info.log is created"""
+    root = os.path.dirname(os.path.abspath(__file__))
+    print (os.path.join(root, "/flask_auth_logging/app/logs"))
+    assert os.path.exists(os.path.join(root, "../logs")) == True
+
+def test_log_file_creation1():
+    """check if info.log is created"""
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    log1 = os.path.join(root, "/flask_auth_Proj3/logs/","myapp.log")
+    print(log1)
+    assert os.path.exists(log1) == True

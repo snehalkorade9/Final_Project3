@@ -1,3 +1,5 @@
+import logging
+
 from flask import Blueprint, render_template, redirect, url_for, flash,current_app
 from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash
@@ -12,6 +14,7 @@ auth = Blueprint('auth', __name__, template_folder='templates')
 
 @auth.route('/register', methods=['POST', 'GET'])
 def register():
+    log = logging.getLogger("myApp")
     if current_user.is_authenticated:
         return redirect(url_for('auth.dashboard'))
     form = register_form()
@@ -26,6 +29,7 @@ def register():
                 db.session.add(user)
                 db.session.commit()
             flash('Congratulations, you are now a registered user!', "success")
+            log.info(user)
             return redirect(url_for('auth.login'), 302)
         else:
             flash('Already Registered')
