@@ -74,8 +74,10 @@ def logout():
 @auth.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html')
-
+    if current_user.is_authenticated:
+        return render_template('dashboard.html')
+    else:
+        return redirect(url_for('auth.dashboard'), 403)
 
 @auth.route('/profile', methods=['POST', 'GET'])
 def edit_profile():
@@ -176,6 +178,7 @@ def delete_user(user_id):
     db.session.commit()
     flash('User Deleted', 'success')
     return redirect(url_for('auth.browse_users'), 302)
+
 
 
 

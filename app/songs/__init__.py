@@ -29,26 +29,29 @@ def songs_browse(page):
 @songs.route('/songs/upload', methods=['POST', 'GET'])
 @login_required
 def songs_upload():
-    form = csv_upload()
-    if form.validate_on_submit():
-        log = logging.getLogger("myApp")
+    print("Current user", current_user, "is admin", current_user.is_admin)
+    if current_user.is_admin:
+        form = csv_upload()
+        if form.validate_on_submit():
+            log = logging.getLogger("myApp")
 
-        filename = secure_filename(form.file.data.filename)
-        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-        form.file.data.save(filepath)
-        #user = current_user
-        list_of_songs = []
-        with open(filepath) as file:
-            csv_file = csv.DictReader(file)
-            for row in csv_file:
-                list_of_songs.append(Song(row['Name'],row['Artist']))
+            filename = secure_filename(form.file.data.filename)
+            filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+            form.file.data.save(filepath)
+            #user = current_user
+            list_of_songs = []
+            with open(filepath) as file:
+                csv_file = csv.DictReader(file)
+                for row in csv_file:
+                    list_of_songs.append(Song(row['Name'],row['Artist']))
 
-        current_user.songs = list_of_songs
-        db.session.commit()
+            current_user.songs = list_of_songs
+            db.session.commit()
 
-        return redirect(url_for('songs.songs_browse'))
-
-    try:
-        return render_template('upload.html', form=form)
-    except TemplateNotFound:
-        abort(404)
+            return redirect(url_for('songs.songs_browse'))
+        try:
+            return render_template('upload.html', form=form)
+        except TemplateNotFound:
+            abort(404)
+    else:
+        return redirect(url_for('songs.songs_browse'), 403)

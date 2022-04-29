@@ -8,7 +8,7 @@ from flask_wtf import FlaskForm
 from werkzeug.security import generate_password_hash
 
 import app
-from app import db, User, create_app, auth
+from app import db, User, create_app, auth, songs
 from app.db import db
 
 @pytest.fixture()
@@ -16,6 +16,10 @@ def create_user(application):
         with application.app_context():
             # new record
             user = User('sk@njit.edu', generate_password_hash('Test123#'))
+            user.is_admin = 1
+            db.session.add(user)
+            db.session.commit()
+            user = User('sk1@njit.edu', generate_password_hash('Test123#'))
             db.session.add(user)
             db.session.commit()
 
@@ -24,6 +28,14 @@ def logged_in_user(client, application, create_user):
     with application.app_context():
         rv = client.post('/login', data=dict(
             email='sk@njit.edu',
+            password='Test123#'     #testing password
+        ), follow_redirects=True)
+
+@pytest.fixture()
+def logged_in_non_admin_user(client, application, create_user):
+    with application.app_context():
+        rv = client.post('/login', data=dict(
+            email='sk1@njit.edu',
             password='Test123#'     #testing password
         ), follow_redirects=True)
 
@@ -49,9 +61,9 @@ def test_valid_user(client, application, create_user):
     with application.app_context():
         rv = client.post('/login', data=dict(
             email='sk@njit.edu',
-            password='Test123#'     #testing password
+            password='Test123#',
+            #testing password
         ), follow_redirects=True)
-        print(rv.data)
         assert b"Welcome1" in rv.data
 
 
@@ -87,7 +99,6 @@ def test_access_dashboard(client, application, logged_in_user):
     with application.app_context():
         #user = User.query.get(User.id)
         response = client.get("/dashboard")
-        print("loggen in", response.data)
         assert response.status_code == 200
 
 
@@ -96,5 +107,20 @@ def test_not_able_to_access_dashboard(client, application):
     with application.app_context():
         #user = User.query.get(User.id)
         response = client.get("/dashboard")
-        print("loggen in", response.data)
         assert response.status_code == 302
+
+
+@songs.route('/songs/upload')
+def test_able_to_access_upload_file(client, application, logged_in_user):
+    with application.app_context():
+        response = client.get("/songs/upload")
+        #print("loggen in", response.data)
+        assert response.status_code == 200
+
+
+@songs.route('/songs/upload')
+def test_not_able_to_access_upload_file(client, application, logged_in_non_admin_user):
+    with application.app_context():
+        response = client.get("/songs/upload")
+        #print("loggen in", response.data)
+        assert response.status_code == 403
