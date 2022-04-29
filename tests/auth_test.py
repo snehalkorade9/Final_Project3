@@ -23,7 +23,7 @@ def create_user(application):
 def logged_in_user(client, application, create_user):
     with application.app_context():
         rv = client.post('/login', data=dict(
-            email='sk432@njit.edu',
+            email='sk@njit.edu',
             password='Test123#'     #testing password
         ), follow_redirects=True)
 
@@ -83,7 +83,7 @@ def test_register_user(client, application, create_user):
 
 
 @auth.route('/dashboard')
-def test_access_dashboard(client, application):
+def test_access_dashboard(client, application, logged_in_user):
     with application.app_context():
         #user = User.query.get(User.id)
         response = client.get("/dashboard")
