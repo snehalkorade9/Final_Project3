@@ -26,6 +26,6 @@ def test_log_folder_creation():
 def test_log_file_creation1():
     """check if info.log is created"""
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    logdir = os.path.join(root, '.\logs','errors.log')
+    logdir = os.path.join(root, './logs','errors.log')
     print(logdir)
     assert os.path.exists(logdir) == True
