@@ -57,24 +57,26 @@ def test_auth_pages(client):
 
 
 @auth.route('/login', methods=['POST', 'GET'])
-def test_valid_user(client, application, create_user):
+def test_valid_user_login(client, application, create_user):
     with application.app_context():
         rv = client.post('/login', data=dict(
             email='sk@njit.edu',
             password='Test123#',
             #testing password
         ), follow_redirects=True)
+        assert rv.request.path == "/dashboard"
         assert b"Welcome1" in rv.data
 
 
 @auth.route('/login', methods=['POST', 'GET'])
-def test_invalid_user(client, application, create_user):
+def test_invalid_user_login(client, application, create_user):
     with application.app_context():
         rv = client.post('/login', data=dict(
             email='sk123@njit.edu',
             password='Test123#'
         ), follow_redirects=True)
         print(rv.data)
+        assert rv.request.path == "/login"
         assert b"Invalid username or password" in rv.data
 
 
@@ -89,9 +91,9 @@ def test_register_user(client, application, create_user):
             confirm='Test123#'
         ), follow_redirects=True)
         print("rv.request.path", rv.request.path)
+        assert rv.status_code == 200
         assert rv.request.path == "/login"
         assert b"Congratulations" in rv.data
-        assert rv.status_code == 200
 
 
 @auth.route('/dashboard')
@@ -103,7 +105,7 @@ def test_access_dashboard(client, application, logged_in_user):
 
 
 @auth.route('/dashboard')
-def test_not_able_to_access_dashboard(client, application):
+def test_deny_access_dashboard(client, application):
     with application.app_context():
         #user = User.query.get(User.id)
         response = client.get("/dashboard")
@@ -111,7 +113,7 @@ def test_not_able_to_access_dashboard(client, application):
 
 
 @songs.route('/songs/upload')
-def test_able_to_access_upload_file(client, application, logged_in_user):
+def test_allow_upload_file(client, application, logged_in_user):
     with application.app_context():
         response = client.get("/songs/upload")
         #print("loggen in", response.data)
@@ -119,7 +121,7 @@ def test_able_to_access_upload_file(client, application, logged_in_user):
 
 
 @songs.route('/songs/upload')
-def test_not_able_to_access_upload_file(client, application, logged_in_non_admin_user):
+def test_deney_access_upload_file(client, application, logged_in_non_admin_user):
     with application.app_context():
         response = client.get("/songs/upload")
         #print("loggen in", response.data)
