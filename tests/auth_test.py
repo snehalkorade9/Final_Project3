@@ -21,7 +21,7 @@ def create_user(application):
 
 
 @auth.route('/login', methods=['POST', 'GET'])
-def test_validate_user1(client, application, create_user):
+def test_valid_user(client, application, create_user):
     with application.app_context():
         rv = client.post('/login', data=dict(
             email='sk@njit.edu',
@@ -32,7 +32,7 @@ def test_validate_user1(client, application, create_user):
 
 
 @auth.route('/login', methods=['POST', 'GET'])
-def test_invalidate_user(client, application, create_user):
+def test_invalid_user(client, application, create_user):
     with application.app_context():
         rv = client.post('/login', data=dict(
             email='sk123@njit.edu',
