@@ -25,7 +25,7 @@ def test_valid_user(client, application, create_user):
     with application.app_context():
         rv = client.post('/login', data=dict(
             email='sk@njit.edu',
-            password='Test123#'
+            password='Test123#'     #testing password
         ), follow_redirects=True)
         print(rv.data)
         assert b"Welcome1" in rv.data
