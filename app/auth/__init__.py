@@ -16,12 +16,15 @@ auth = Blueprint('auth', __name__, template_folder='templates')
 def register():
     log = logging.getLogger("myApp")
     if current_user.is_authenticated:
+        print("Current user",current_user)
         return redirect(url_for('auth.dashboard'))
     form = register_form()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
+        print("user", user)
         if user is None:
             user = User(email=form.email.data, password=generate_password_hash(form.password.data))
+            print("user check pass", user)
             db.session.add(user)
             db.session.commit()
             if user.id == 1:
