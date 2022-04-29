@@ -26,6 +26,6 @@ def test_log_folder_creation():
 def test_log_file_creation1():
     """check if info.log is created"""
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    log1 = os.path.join(root, "/flask_auth_Proj3/logs/","myapp.log")
-    print(log1)
-    assert os.path.exists(log1) == True
+    logdir = os.path.join(root, '../app/logs/errors.log')
+    print(logdir)
+    assert os.path.exists(logdir) == True
