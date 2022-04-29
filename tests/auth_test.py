@@ -91,3 +91,10 @@ def test_access_dashboard(client, application, logged_in_user):
         assert response.status_code == 200
 
 
+@auth.route('/dashboard')
+def test_not_able_to_access_dashboard(client, application):
+    with application.app_context():
+        #user = User.query.get(User.id)
+        response = client.get("/dashboard")
+        print("loggen in", response.data)
+        assert response.status_code == 302
