@@ -2,47 +2,44 @@
 
 import pytest
 from _pytest.fixtures import fixture
-from flask import url_for, request
+from flask import url_for, request, render_template
+from flask_login import login_required
+from flask_wtf import FlaskForm
+from werkzeug.security import generate_password_hash
 
-from app import db, User, create_app
+import app
+from app import db, User, create_app, auth
 from app.db import db
 
 @pytest.fixture()
-def logged_in_user(application):
+def create_user(application):
         with application.app_context():
             # new record
-            user = User('sk@njit.edu', 'Test123#')
+            user = User('sk@njit.edu', generate_password_hash('Test123#'))
             db.session.add(user)
             db.session.commit()
 
-def logged_in_user1(client):
-    return client.post('/login', data=dict(
+
+@auth.route('/login', methods=['POST', 'GET'])
+def test_validate_user1(client, application, create_user):
+    with application.app_context():
+        rv = client.post('/login', data=dict(
             email='sk@njit.edu',
             password='Test123#'
         ), follow_redirects=True)
+        print(rv.data)
+        assert b"Welcome1" in rv.data
 
-def test_validate_user1(client):
-    rv = client.post('/login', data=dict(
-            email='sk@njit.edu',
+
+@auth.route('/login', methods=['POST', 'GET'])
+def test_invalidate_user(client, application, create_user):
+    with application.app_context():
+        rv = client.post('/login', data=dict(
+            email='sk123@njit.edu',
             password='Test123#'
         ), follow_redirects=True)
-    print(rv.data)
-    assert b'Welcome' in rv.data
-
-
-
-def test_validate_user(client, logged_in_user):
-    application = create_app()
-    response = client.get("/login")
-    assert response.status_code == 200
-    response = client.post(("/login"),
-        data={'email': 'sk@njit.edu', 'password': 'Test123#'})
-    user = User.query.filter_by(email='sk@njit.edu').first()
-    assert user.email == 'sk@njit.edu'
-    #assert request.path == url_for('auth.dashboard')
-    assert user.authenticated == True
-    #response = client.get("/dashboard.html")
-    #assert response.status_code == 200
+        print(rv.data)
+        assert b"Invalid username or password" in rv.data
 
 
 def test_request_main_menu_links(client):
